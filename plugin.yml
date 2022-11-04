@@ -1,0 +1,13 @@
+name: NoNBTCommand
+version: 1.0.0
+main: com.zefinder.NoNBTCommand
+description: Restricts some commands to execute by NBT tags
+author: Zefinder
+api-version: 1.19
+load: POSTWORLD
+prefix: NoNBTCommand
+permissions:
+   permission.commandUse:
+      description: "Permission of using this plugin's commands"
+      default: op
+depend: [NBTAPI]
