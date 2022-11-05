@@ -10,4 +10,11 @@ permissions:
    permission.commandUse:
       description: "Permission of using this plugin's commands"
       default: op
+commands:
+   - command:
+      description: "Configure the plugin"
+      usage: "/nonbt <add|remove> <command>\n/nonbt removeAll\n/nonbt let <allow|forbid>\n/nonbt many <all|some>"
+      aliases: [nonbt]
+      permission: permission.commandUse
+      permission-message: "You do not have permission to use this command"
 depend: [NBTAPI]

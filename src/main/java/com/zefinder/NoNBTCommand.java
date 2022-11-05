@@ -7,8 +7,10 @@ public class NoNBTCommand extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
-		Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
+		ConfigFile cf = new ConfigFile();
 		
+		Bukkit.getPluginManager().registerEvents(new PlayerListener(cf), this);
+		this.getCommand("nonbt").setExecutor(new NBTCommand(cf));
 	}
 
 

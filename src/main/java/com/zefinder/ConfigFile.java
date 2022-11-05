@@ -93,21 +93,39 @@ public class ConfigFile {
 	public void changeAuth(Authorization auth) throws FileNotFoundException {
 		Map<?, ?> authMap = (Map<?, ?>) config.get("auth");
 		Map<Object, Object> finalMap = new LinkedHashMap<>(authMap);
-		
+
 		switch (auth) {
 		case ALLOW:
 		case FORBID:
 			finalMap.put("let", auth.getAuth());
 			break;
-			
+
 		case ALL:
 		case SOME:
 			finalMap.put("many", auth.getAuth());
 			break;
 		}
-		
+
 		config.put("auth", finalMap);
 		write();
+	}
+
+	public Authorization getLetAuth() {
+		Map<?, ?> authMap = (Map<?, ?>) config.get("auth");
+		Object let = authMap.get("let");
+		if (let.equals(Authorization.ALLOW.getAuth()))
+			return Authorization.ALLOW;
+		else
+			return Authorization.FORBID;
+	}
+	
+	public Authorization getManyAuth() {
+		Map<?, ?> authMap = (Map<?, ?>) config.get("auth");
+		Object let = authMap.get("many");
+		if (let.equals(Authorization.SOME.getAuth()))
+			return Authorization.SOME;
+		else
+			return Authorization.ALL;
 	}
 
 	public void addCommand(String command) throws FileNotFoundException {
