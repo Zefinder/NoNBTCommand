@@ -36,6 +36,7 @@ public class ConfigFile {
 	}
 
 	public ConfigFile() {
+		// Only to make a nice-looking yaml file
 		options = new DumperOptions();
 		options.setIndentWithIndicator(true);
 		options.setIndent(3);
@@ -59,6 +60,7 @@ public class ConfigFile {
 				e.printStackTrace();
 			}
 
+			// Setting some default values
 			config = new LinkedHashMap<>();
 			Map<String, String> auth = new LinkedHashMap<>();
 			auth.put("let", Authorization.FORBID.getAuth());

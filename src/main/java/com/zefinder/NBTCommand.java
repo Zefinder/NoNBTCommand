@@ -1,16 +1,20 @@
 package com.zefinder;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 
-public class NBTCommand implements CommandExecutor {
+public class NBTCommand implements CommandExecutor, TabCompleter {
 
 	private ConfigFile cf;
 
@@ -101,6 +105,33 @@ public class NBTCommand implements CommandExecutor {
 		}
 
 		return true;
+	}
+
+	@Override
+	public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
+			@NotNull String label, @NotNull String[] args) {
+		List<String> possibilities = new ArrayList<>();
+
+		if (args.length == 1) {
+			possibilities.add("add");
+			possibilities.add("remove");
+			possibilities.add("removeAll");
+			possibilities.add("let");
+			possibilities.add("many");
+			
+		}
+
+		if (args.length == 2 && args[0].equals("let")) {
+			possibilities.add("forbid");
+			possibilities.add("allow");
+		}
+		
+		if (args.length == 2 && args[0].equals("many")) {
+			possibilities.add("all");
+			possibilities.add("some");
+		}
+
+		return possibilities;
 	}
 
 }

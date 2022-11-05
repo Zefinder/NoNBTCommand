@@ -25,23 +25,25 @@ public class PlayerListener implements Listener {
 
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerInteraction(PlayerInteractEvent event) {
-		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-			Block block = event.getClickedBlock();
+		// We test only if the player is not OP
+		if (!event.getPlayer().isOp())
+			if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+				Block block = event.getClickedBlock();
 
-			if (block.getState() instanceof Sign) {
-				NBTTileEntity nbt = new NBTTileEntity(block.getState());
-				if (checkForRunCommand(nbt.getString("Text1"))) {
-					event.setCancelled(true);
-				} else if (checkForRunCommand(nbt.getString("Text2"))) {
-					event.setCancelled(true);
-				} else if (checkForRunCommand(nbt.getString("Text3"))) {
-					event.setCancelled(true);
-				} else if (checkForRunCommand(nbt.getString("Text4"))) {
-					event.setCancelled(true);
+				if (block.getState() instanceof Sign) {
+					NBTTileEntity nbt = new NBTTileEntity(block.getState());
+					if (checkForRunCommand(nbt.getString("Text1"))) {
+						event.setCancelled(true);
+					} else if (checkForRunCommand(nbt.getString("Text2"))) {
+						event.setCancelled(true);
+					} else if (checkForRunCommand(nbt.getString("Text3"))) {
+						event.setCancelled(true);
+					} else if (checkForRunCommand(nbt.getString("Text4"))) {
+						event.setCancelled(true);
+					}
+
 				}
-
 			}
-		}
 	}
 
 	private boolean checkForRunCommand(String json) {
@@ -53,6 +55,7 @@ public class PlayerListener implements Listener {
 			if (clickEvent != null) {
 				Map<?, ?> eventMap = ((Map<?, ?>) jsonObject.get("clickEvent"));
 
+				// If the JSON contains an action that is running a command, the process begins
 				if (eventMap.containsKey("action") && eventMap.get("action").equals("run_command")) {
 					ConfigFile.Authorization let = cf.getLetAuth();
 					ConfigFile.Authorization many = cf.getManyAuth();
@@ -63,6 +66,7 @@ public class PlayerListener implements Listener {
 							ret = true;
 
 						} else if (many == ConfigFile.Authorization.SOME) {
+							// We cancel iff the command is in the blacklist
 							Object value = eventMap.get("value");
 							List<?> commands = cf.getCommands();
 							for (Object command : commands) {
@@ -78,6 +82,7 @@ public class PlayerListener implements Listener {
 							ret = false;
 
 						} else if (many == ConfigFile.Authorization.SOME) {
+							// We allow iff the command is in the whitelist
 							Object value = eventMap.get("value");
 							List<?> commands = cf.getCommands();
 							for (Object command : commands) {
