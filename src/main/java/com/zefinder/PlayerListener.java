@@ -58,21 +58,6 @@ public class PlayerListener implements Listener {
 					ConfigFile.Authorization many = cf.getManyAuth();
 
 					if (let == ConfigFile.Authorization.FORBID) {
-						ret = true;
-						if (many == ConfigFile.Authorization.ALL) {
-							ret = false;
-
-						} else if (many == ConfigFile.Authorization.SOME) {
-							Object value = eventMap.get("value");
-							List<?> commands = cf.getCommands();
-							for (Object command : commands) {
-								if (command.equals(value)) {
-									ret = false;
-								}
-							}
-						}
-
-					} else if (let == ConfigFile.Authorization.ALLOW) {
 						ret = false;
 						if (many == ConfigFile.Authorization.ALL) {
 							ret = true;
@@ -81,8 +66,23 @@ public class PlayerListener implements Listener {
 							Object value = eventMap.get("value");
 							List<?> commands = cf.getCommands();
 							for (Object command : commands) {
-								if (command.equals(value)) {
+								if (value.toString().contains(command.toString())) {
 									ret = true;
+								}
+							}
+						}
+
+					} else if (let == ConfigFile.Authorization.ALLOW) {
+						ret = true;
+						if (many == ConfigFile.Authorization.ALL) {
+							ret = false;
+
+						} else if (many == ConfigFile.Authorization.SOME) {
+							Object value = eventMap.get("value");
+							List<?> commands = cf.getCommands();
+							for (Object command : commands) {
+								if (value.toString().contains(command.toString())) {
+									ret = false;
 								}
 							}
 						}

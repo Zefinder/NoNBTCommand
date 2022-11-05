@@ -17,7 +17,7 @@ import org.yaml.snakeyaml.Yaml;
 public class ConfigFile {
 
 	private Map<String, Object> config;
-	private final File configFile = new File("./NoNBTCommands/config.yml");
+	private final File configFile = new File("./plugins/NoNBTCommands/config.yml");
 
 	private final DumperOptions options;
 
@@ -48,7 +48,7 @@ public class ConfigFile {
 
 	private void init() {
 		// Create folder and file if they don't exist
-		File configFolder = new File("./NoNBTCommands");
+		File configFolder = new File("./plugins/NoNBTCommands");
 		if (!configFolder.exists())
 			configFolder.mkdir();
 
