@@ -44,52 +44,47 @@ public class ConfigFile {
 		options.setPrettyFlow(true);
 		options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
 
-		init();
-	}
-
-	private void init() {
-		// Create folder and file if they don't exist
-		File configFolder = new File("./plugins/NoNBTCommands");
-		if (!configFolder.exists())
-			configFolder.mkdir();
-
-		if (!configFile.exists()) {
-			try {
-				configFile.createNewFile();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-			// Setting some default values
-			config = new LinkedHashMap<>();
-			Map<String, String> auth = new LinkedHashMap<>();
-			auth.put("let", Authorization.FORBID.getAuth());
-			auth.put("many", Authorization.ALL.getAuth());
-			config.put("auth", auth);
-
-			List<String> commands = new ArrayList<>();
-			config.put("commands", commands);
-
-			try {
-				write();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-		} else {
-			// Read the YAML file
-			Yaml yaml = new Yaml();
-			try {
-				InputStream is = new FileInputStream(configFile);
-				config = yaml.load(is);
-				is.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+		try {
+			init();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
-	public ArrayList<?> getCommands() {
+	private void init() throws IOException {
+		// Create folder and file if they don't exist
+		File configFolder = new File("./plugins/NoNBTCommands");
+		if (!configFolder.exists())
+			configFolder.mkdirs();
+
+		if (!configFile.exists()) {
+			configFile.createNewFile();
+		}
+		// Read the YAML file
+		Yaml yaml = new Yaml();
+
+		InputStream is = new FileInputStream(configFile);
+		config = yaml.load(is);
+
+		if (verifyFile())
+			write();
+
+		is.close();
+
+	}
+
+	public ArrayList<?> getNormalCommands() {
 		return (ArrayList<?>) config.get("commands");
+	}
+	
+	public ArrayList<?> getOpCommands() {
+		return (ArrayList<?>) config.get("op");
+	}
+	
+	public ArrayList<?> getAllCommands() {
+		List<Object> commands = new ArrayList<>(getNormalCommands());
+		commands.addAll(getOpCommands());
+		return new ArrayList<>(commands);
 	}
 
 	public void changeAuth(Authorization auth) throws FileNotFoundException {
@@ -120,7 +115,7 @@ public class ConfigFile {
 		else
 			return Authorization.FORBID;
 	}
-	
+
 	public Authorization getManyAuth() {
 		Map<?, ?> authMap = (Map<?, ?>) config.get("auth");
 		Object let = authMap.get("many");
@@ -130,22 +125,40 @@ public class ConfigFile {
 			return Authorization.ALL;
 	}
 
-	public void addCommand(String command) throws FileNotFoundException {
-		List<?> commands = (ArrayList<?>) config.get("commands");
+	public void addCommand(String command, boolean op) throws FileNotFoundException {
+		List<?> commands;
+		if (op)
+			commands = (ArrayList<?>) config.get("op");
+		else
+			commands = (ArrayList<?>) config.get("commands");
+
 		List<Object> finalCommands = new ArrayList<>(commands);
 		finalCommands.add(command);
-		config.put("commands", finalCommands);
+
+		if (op)
+			config.put("op", finalCommands);
+		else
+			config.put("commands", finalCommands);
 
 		write();
 	}
 
-	public boolean removeCommand(String command) throws FileNotFoundException {
-		List<?> commands = (ArrayList<?>) config.get("commands");
+	public boolean removeCommand(String command, boolean op) throws FileNotFoundException {
+		List<?> commands;
+		if (op)
+			commands = (ArrayList<?>) config.get("op");
+		else
+			commands = (ArrayList<?>) config.get("commands");
+		
 		List<Object> finalCommands = new ArrayList<>(commands);
 		boolean success = finalCommands.remove(command);
 
 		if (success) {
-			config.put("commands", finalCommands);
+			if (op)
+				config.put("op", finalCommands);
+			else
+				config.put("commands", finalCommands);
+			
 			write();
 		}
 
@@ -154,7 +167,38 @@ public class ConfigFile {
 
 	public void removeAll() throws FileNotFoundException {
 		config.put("commands", new ArrayList<>());
+		config.put("op", new ArrayList<>());
 		write();
+	}
+
+	// return true if changed
+	private boolean verifyFile() {
+		boolean changed = false;
+
+		if (config == null) {
+			config = new LinkedHashMap<>();
+			changed = true;
+		}
+
+		if (!config.containsKey("auth")) {
+			Map<String, String> auth = new LinkedHashMap<>();
+			auth.put("let", Authorization.FORBID.getAuth());
+			auth.put("many", Authorization.ALL.getAuth());
+			config.put("auth", auth);
+			changed = true;
+		}
+
+		if (!config.containsKey("commands")) {
+			config.put("commands", new ArrayList<>());
+			changed = true;
+		}
+
+		if (!config.containsKey("op")) {
+			config.put("op", new ArrayList<>());
+			changed = true;
+		}
+
+		return changed;
 	}
 
 	private void write() throws FileNotFoundException {
