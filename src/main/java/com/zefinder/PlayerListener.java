@@ -26,27 +26,27 @@ public class PlayerListener implements Listener {
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerInteraction(PlayerInteractEvent event) {
 		// We test only if the player is not OP
-		if (!event.getPlayer().isOp())
-			if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				Block block = event.getClickedBlock();
+		boolean op = event.getPlayer().isOp();
+		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+			Block block = event.getClickedBlock();
 
-				if (block.getState() instanceof Sign) {
-					NBTTileEntity nbt = new NBTTileEntity(block.getState());
-					if (checkForRunCommand(nbt.getString("Text1"))) {
-						event.setCancelled(true);
-					} else if (checkForRunCommand(nbt.getString("Text2"))) {
-						event.setCancelled(true);
-					} else if (checkForRunCommand(nbt.getString("Text3"))) {
-						event.setCancelled(true);
-					} else if (checkForRunCommand(nbt.getString("Text4"))) {
-						event.setCancelled(true);
-					}
-
+			if (block.getState() instanceof Sign) {
+				NBTTileEntity nbt = new NBTTileEntity(block.getState());
+				if (checkForRunCommand(nbt.getString("Text1"), op)) {
+					event.setCancelled(true);
+				} else if (checkForRunCommand(nbt.getString("Text2"), op)) {
+					event.setCancelled(true);
+				} else if (checkForRunCommand(nbt.getString("Text3"), op)) {
+					event.setCancelled(true);
+				} else if (checkForRunCommand(nbt.getString("Text4"), op)) {
+					event.setCancelled(true);
 				}
+
 			}
+		}
 	}
 
-	private boolean checkForRunCommand(String json) {
+	private boolean checkForRunCommand(String json, boolean op) {
 		boolean ret = false;
 
 		try {
@@ -68,7 +68,13 @@ public class PlayerListener implements Listener {
 						} else if (many == ConfigFile.Authorization.SOME) {
 							// We cancel iff the command is in the blacklist
 							Object value = eventMap.get("value");
-							List<?> commands = cf.getCommands();
+							
+							List<?> commands;
+							if (op)
+								commands = cf.getOpCommands();
+							else
+								commands = cf.getAllCommands();
+
 							for (Object command : commands) {
 								if (value.toString().contains(command.toString())) {
 									ret = true;
@@ -84,7 +90,13 @@ public class PlayerListener implements Listener {
 						} else if (many == ConfigFile.Authorization.SOME) {
 							// We allow iff the command is in the whitelist
 							Object value = eventMap.get("value");
-							List<?> commands = cf.getCommands();
+							
+							List<?> commands;
+							if (op)
+								commands = cf.getOpCommands();
+							else
+								commands = cf.getAllCommands();
+
 							for (Object command : commands) {
 								if (value.toString().contains(command.toString())) {
 									ret = false;

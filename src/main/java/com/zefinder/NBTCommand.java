@@ -35,12 +35,12 @@ public class NBTCommand implements CommandExecutor, TabCompleter {
 
 		switch (args[0]) {
 		case "add":
-			if (args.length < 2) {
+			if (args.length < 3 && (!args[1].equals("op") || !args[1].equals("not-op"))) {
 				sender.sendMessage(error);
 			}
 
 			try {
-				cf.addCommand(args[1]);
+				cf.addCommand(args[2], args[1].equals("op"));
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
@@ -48,12 +48,12 @@ public class NBTCommand implements CommandExecutor, TabCompleter {
 			break;
 
 		case "remove":
-			if (args.length < 2) {
+			if (args.length < 3 && (!args[1].equals("op") || !args[1].equals("not-op"))) {
 				sender.sendMessage(error);
 			}
 
 			try {
-				cf.removeCommand(args[1]);
+				cf.removeCommand(args[2], args[1].equals("op"));
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
@@ -118,14 +118,19 @@ public class NBTCommand implements CommandExecutor, TabCompleter {
 			possibilities.add("removeAll");
 			possibilities.add("let");
 			possibilities.add("many");
-			
+
+		}
+
+		if (args.length == 2 && (args[0].equals("add") || args[0].equals("remove"))) {
+			possibilities.add("op");
+			possibilities.add("not-op");
 		}
 
 		if (args.length == 2 && args[0].equals("let")) {
 			possibilities.add("forbid");
 			possibilities.add("allow");
 		}
-		
+
 		if (args.length == 2 && args[0].equals("many")) {
 			possibilities.add("all");
 			possibilities.add("some");
